@@ -6,17 +6,20 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/aitchkhan/go-gorcery-api/models"
+	"github.com/aitchkhan/go-gorcery-api/routes"
 )
 
 func main() {
-	r := mux.NewRouter()
-	r.HandleFunc("/", HomeHandler)
-	r.HandleFunc("/products", ProductsHandler)
-	r.HandleFunc("/orders", OrdersHandler)
-	http.Handle("/", r)
+
+	models.OpenDBConn()
+	models.DB.AutoMigrate()
+
+	routes.RegisterUserRoutes()
+	http.Handle("/", routes.Routes)
+
 	srv := &http.Server{
-		Handler:      r,
+		Handler:      routes.Routes,
 		Addr:         "0.0.0.0:8000",
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,

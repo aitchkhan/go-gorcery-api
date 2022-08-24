@@ -1,0 +1,5 @@
+{
+  "go.lintOnSave": "workspace",
+  "go.lintTool": "staticcheck",
+  "editor.formatOnSave": true
+}

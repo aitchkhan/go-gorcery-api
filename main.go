@@ -13,7 +13,10 @@ import (
 func main() {
 
 	models.OpenDBConn()
-	models.DB.AutoMigrate()
+	err := models.DB.AutoMigrate(&models.User{})
+	if err !=nil {
+		panic("failed on migrating")
+	}
 
 	routes.RegisterUserRoutes()
 	http.Handle("/", routes.Routes)

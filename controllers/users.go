@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -9,13 +10,15 @@ import (
 
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	user := models.User{
-		Name: "Haroon Khan",
-		Email: "aitchkhan@gmail.com",
+	var u models.User
+	err := json.NewDecoder(r.Body).Decode(&u)
+	if err != nil {
+		panic("Failed to read request body")
 	}
 
-	models.CreateUser(models.DB, &user)
+	models.CreateUser(models.DB, &u)
 	w.WriteHeader(http.StatusOK)
+	
 	fmt.Fprintf(w, "User Login: %v\n", "Haroon was here")
 }
 

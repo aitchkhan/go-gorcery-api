@@ -2,12 +2,15 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/aitchkhan/go-gorcery-api/models"
+	"github.com/davecgh/go-spew/spew"
 )
-
+type Response struct{
+	Message string `json:"message"`
+}
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	var u models.User
@@ -15,14 +18,48 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic("Failed to read request body")
 	}
-
-	models.CreateUser(models.DB, &u)
-	w.WriteHeader(http.StatusOK)
+	models.GetUserByEmail(models.DB, &u)
+	spew.Dump(u)
 	
-	fmt.Fprintf(w, "User Login: %v\n", "Haroon was here")
+	if u.ID == 0 {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		r := Response{
+			Message: "failed to find user",
+		}
+		rJSON, err := json.Marshal(r)
+		if err != nil {
+			log.Fatal("error marshalling")
+		}
+		w.Write(rJSON)
+		return
+	}
+
+	userJSON, err := json.Marshal(u)
+	if err != nil {
+		panic("Failed to find user by email")
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(userJSON)
 }
 
 func SignUpHandler(w http.ResponseWriter, r *http.Request) {
+	var u models.User
+	err := json.NewDecoder(r.Body).Decode(&u)
+	if err != nil {
+		panic("Failed to read request body")
+	}
+
+	models.CreateUser(models.DB, &u)
+	s := Response{
+		Message: "User logged in successfully",
+	}	
+	successJSON, err := json.Marshal(s)
+	if err != nil {
+		log.Fatal("Failed to marshal s")
+	}
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "User Signup: %v\n", "Haroon was here")
+	w.Write(successJSON)
 }

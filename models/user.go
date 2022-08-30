@@ -1,6 +1,8 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type User struct {
 	gorm.Model
@@ -12,6 +14,6 @@ func CreateUser(db *gorm.DB, u *User) {
 	db.Create(u)
 }
 
-func Signin(db *gorm.DB, u *User) {
-	db.First(u, u.ID)
+func GetUserByEmail(db *gorm.DB, u *User) {
+	db.Where("email = ?", u.Email).First(&u)
 }
